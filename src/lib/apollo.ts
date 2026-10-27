@@ -1,14 +1,14 @@
 import { ApolloClient, HttpLink, InMemoryCache } from "@apollo/client"
 import { setContext } from "@apollo/client/link/context"
 
-import { keycloak } from "@/components/keycloak-provider"
+import { getAccessToken } from "@/components/keycloak-provider"
 
 const httpLink = new HttpLink({
   uri: `${import.meta.env.VITE_APP_BACKEND_URL}/graphql`,
 })
 
-const authLink = setContext((_operation, previousContext) => {
-  const token = keycloak.token
+const authLink = setContext(async (_operation, previousContext) => {
+  const token = await getAccessToken()
 
   return {
     ...previousContext,

@@ -1,6 +1,6 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react"
 
-import { keycloak } from "@/components/keycloak-provider"
+import { getAccessToken } from "@/components/keycloak-provider"
 import type { Page, User, UserInput, UserInputDto } from "./usersApi.types"
 
 function toDto(data: UserInput): UserInputDto {
@@ -18,8 +18,10 @@ export const usersApi = createApi({
   reducerPath: "usersApi",
   baseQuery: fetchBaseQuery({
     baseUrl: `${import.meta.env.VITE_APP_BACKEND_URL}/coroutine`,
-    prepareHeaders: (headers) => {
-      const token = keycloak.token
+    // Proactively refresh so requests after idle never send an expired token
+    // (updateToken is a no-op while the token is fresh).
+    prepareHeaders: async (headers) => {
+      const token = await getAccessToken()
       if (token) {
         headers.set("authorization", `Bearer ${token}`)
       }

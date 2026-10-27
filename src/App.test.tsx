@@ -18,6 +18,7 @@ vi.mock("@/components/keycloak-provider", () => ({
   }),
   KeycloakProvider: ({ children }: { children: ReactNode }) => children,
   keycloak: { token: "test-token" },
+  getAccessToken: async () => "test-token",
 }))
 
 function renderApp() {

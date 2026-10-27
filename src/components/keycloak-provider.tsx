@@ -14,7 +14,13 @@ export interface KeycloakContextValue {
   authenticated: boolean
   login: () => void
   logout: () => void
+  /** Refresh the access token if it is close to expiry. Resolves true when a
+   * refresh happened, false when the token was still fresh. Rejects only on
+   * failure — session loss is signalled via the auth state, not here. */
   updateToken: () => Promise<boolean>
+  /** Proactively refresh, then return a bearer token for API requests
+   * (undefined when unauthenticated). */
+  getAccessToken: () => Promise<string | undefined>
 }
 
 const KeycloakContext = createContext<KeycloakContextValue | undefined>(
@@ -26,18 +32,21 @@ interface KeycloakProviderProps {
 }
 
 const TOKEN_MINI_VALIDITY_SECONDS = 60
-const TOKEN_REFRESH_INTERVAL_MS = 30_000
-
-// If Keycloak's silent-SSO iframe never posts back (e.g. the current origin is
-// not in the client's allowed web-origins, so the redirect is blocked), init()
-// never settles. This watchdog renders the app logged-out after a timeout
-// instead of hanging on the loading screen forever.
+// Backstop for background-tab timer throttling: keycloak-js schedules
+// onTokenExpired with a plain setTimeout, which browsers can delay
+// arbitrarily while the tab is hidden.
+const TOKEN_REFRESH_BACKSTOP_MS = 60_000
+// If Keycloak's silent-SSO iframe never posts back (e.g. the current origin
+// is missing from the client's allowed origins), init() never settles. This
+// watchdog renders the app logged-out instead of hanging on the loading
+// screen forever.
 const INIT_TIMEOUT_MS = 15_000
 
-// Initialize the shared Keycloak instance exactly once, even under React
-// StrictMode's double effect invocation in development. Without this guard,
-// init() runs twice, opening two silent-SSO iframes and double-processing the
-// login authorization code.
+// Initialize the shared Keycloak instance exactly once: keycloak-js throws
+// "A 'Keycloak' instance can only be initialized once." on re-entry, and React
+// StrictMode double-invokes effects in development. Without this guard the
+// second init() would reject, opening two silent-SSO iframes and breaking the
+// login authorization-code exchange.
 let initPromise: Promise<boolean> | null = null
 
 function initKeycloak(): Promise<boolean> {
@@ -51,23 +60,78 @@ function initKeycloak(): Promise<boolean> {
   return initPromise
 }
 
+// Derive auth state from keycloak-js' own fields (it sets `authenticated`
+// together with token/idToken in setToken and clears all of them in
+// clearToken) instead of caching a boolean that goes stale on session loss.
+function isUserAuthenticated(): boolean {
+  return Boolean(keycloak.authenticated && keycloak.token && keycloak.idToken)
+}
+
+/**
+ * Refresh the access token if needed, then return it for API requests.
+ * updateToken is a no-op (resolves false) while the token is fresh, so this
+ * only costs a network round-trip when the token is close to expiry — which
+ * fixes the idle case where a request would otherwise send an expired token.
+ * A rejected refresh must NOT throw here: real session loss fires
+ * onAuthLogout (handled by the provider); transient network errors leave the
+ * session intact, and the request then simply 401s.
+ */
+export async function getAccessToken(): Promise<string | undefined> {
+  try {
+    await keycloak.updateToken(TOKEN_MINI_VALIDITY_SECONDS)
+  } catch {
+    // Intentionally ignored — see above.
+  }
+  return keycloak.token ?? undefined
+}
+
 export function KeycloakProvider({ children }: KeycloakProviderProps) {
   const [initialized, setInitialized] = useState(false)
-  const [authenticated, setAuthenticated] = useState(false)
+  const [authenticated, setAuthenticated] = useState(isUserAuthenticated)
+
+  const refresh = useCallback(() => {
+    return keycloak.updateToken(TOKEN_MINI_VALIDITY_SECONDS).catch(() => false)
+  }, [])
 
   useEffect(() => {
     let cancelled = false
 
-    const timeout = setTimeout(() => {
+    const sync = () => {
+      if (!cancelled) {
+        setAuthenticated(isUserAuthenticated())
+      }
+    }
+    const ready = () => {
+      if (!cancelled) {
+        setAuthenticated(isUserAuthenticated())
+        setInitialized(true)
+      }
+    }
+
+    // Lifecycle wiring mirrors @react-keycloak/core's createAuthProvider, with
+    // two deliberate improvements: the init watchdog below and NOT treating a
+    // plain refresh error as a logout (keycloak-js only clears the session on
+    // a 400 from the token endpoint, which fires onAuthLogout).
+    keycloak.onReady = ready
+    keycloak.onAuthSuccess = sync
+    keycloak.onAuthError = ready
+    keycloak.onAuthRefreshSuccess = sync
+    keycloak.onAuthRefreshError = sync
+    keycloak.onAuthLogout = sync
+    keycloak.onTokenExpired = () => {
+      void refresh()
+    }
+
+    const watchdog = setTimeout(() => {
       if (!cancelled) {
         setInitialized(true)
       }
     }, INIT_TIMEOUT_MS)
 
     initKeycloak()
-      .then((auth) => {
+      .then(() => {
         if (!cancelled) {
-          setAuthenticated(auth)
+          setAuthenticated(isUserAuthenticated())
           setInitialized(true)
         }
       })
@@ -76,31 +140,27 @@ export function KeycloakProvider({ children }: KeycloakProviderProps) {
           setInitialized(true)
         }
       })
-      .finally(() => clearTimeout(timeout))
+      .finally(() => clearTimeout(watchdog))
+
+    const backstop = setInterval(() => {
+      if (isUserAuthenticated()) {
+        void refresh()
+      }
+    }, TOKEN_REFRESH_BACKSTOP_MS)
 
     return () => {
       cancelled = true
-      clearTimeout(timeout)
+      clearTimeout(watchdog)
+      clearInterval(backstop)
+      keycloak.onReady = undefined
+      keycloak.onAuthSuccess = undefined
+      keycloak.onAuthError = undefined
+      keycloak.onAuthRefreshSuccess = undefined
+      keycloak.onAuthRefreshError = undefined
+      keycloak.onAuthLogout = undefined
+      keycloak.onTokenExpired = undefined
     }
-  }, [])
-
-  // keep the access token fresh for REST/GraphQL/SSE requests made while idle
-  useEffect(() => {
-    if (!initialized || !authenticated) {
-      return
-    }
-
-    const interval = setInterval(() => {
-      // resolves true when the token was refreshed, false when it is still
-      // valid for at least minValidity seconds; rejects only when the session
-      // is actually gone (refresh failed)
-      keycloak
-        .updateToken(TOKEN_MINI_VALIDITY_SECONDS)
-        .catch(() => setAuthenticated(false))
-    }, TOKEN_REFRESH_INTERVAL_MS)
-
-    return () => clearInterval(interval)
-  }, [initialized, authenticated])
+  }, [refresh])
 
   const login = useCallback(() => {
     void keycloak
@@ -109,19 +169,9 @@ export function KeycloakProvider({ children }: KeycloakProviderProps) {
   }, [])
 
   const logout = useCallback(() => {
-    keycloak
+    void keycloak
       .logout({ redirectUri: `${import.meta.env.VITE_APP_DOMAIN}/` })
-      .then(() => {})
       .catch((error: unknown) => console.error("Keycloak logout failed", error))
-  }, [])
-
-  const updateToken = useCallback(async () => {
-    try {
-      return await keycloak.updateToken(TOKEN_MINI_VALIDITY_SECONDS)
-    } catch {
-      setAuthenticated(false)
-      return false
-    }
   }, [])
 
   const value: KeycloakContextValue = {
@@ -129,7 +179,8 @@ export function KeycloakProvider({ children }: KeycloakProviderProps) {
     authenticated,
     login,
     logout,
-    updateToken,
+    updateToken: refresh,
+    getAccessToken,
   }
 
   return (
