@@ -117,7 +117,7 @@ function App() {
                 {t("home.section2")}
               </div>
             </div>
-            <div className="grid w-full min-w-0 grid-cols-1">
+            <div className="grid w-full min-w-0 grid-cols-1 justify-items-center">
               <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/unauthorized" element={<Unauthorized />} />
