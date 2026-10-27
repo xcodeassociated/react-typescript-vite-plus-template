@@ -1,0 +1,49 @@
+name: Docker Build and Publish
+
+on:
+  push:
+    branches: ["main", "release/*"]
+
+jobs:
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v2
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+      - name: Codegen
+        run: bun run generate:graphql
+      - name: Run the tests
+        run: bun run test
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v4
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+      - name: Login to Docker Hub
+        uses: docker/login-action@v4
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Make env file for production
+        uses: SpicyPizza/create-envfile@v2
+        with:
+          envkey_VITE_APP_DOMAIN: ${{ secrets.VITE_APP_DOMAIN }}
+          envkey_VITE_APP_KEYCLOAK_URL: ${{ secrets.VITE_APP_KEYCLOAK_URL }}
+          envkey_VITE_APP_BACKEND_URL: ${{ secrets.VITE_APP_BACKEND_URL }}
+          file_name: .env.production
+          fail_on_empty: true
+          sort_keys: false
+      - name: Build and push
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          push: true
+          platforms: linux/amd64,linux/arm64
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          tags: |
+            docker.io/${{ github.repository }}:latest
+            docker.io/${{ github.repository }}:${{ github.sha }}

@@ -1,12 +1,12 @@
-# AGENTS.md – new_app (Vite+ / shadcn Base UI template)
+# AGENTS.md – Vite+ / shadcn Base UI React template
 
-Guidelines for automated agents working in this directory. See the repository-root `AGENTS.md` for shared rules (bun only, never push, keep docs current).
+Guidelines for automated agents working in this repository. Shared rules: `bun` only, never commit/push without explicit permission, keep `README.md` and this file current.
 
 ## Project Overview
 
-- Rebuild of the root template: **Vite+ 1.4** unified toolchain (`vp dev/build/test/lint/fmt/check`), **shadcn/ui base-nova** style on **Base UI** (`@base-ui/react`), **Tailwind v4 CSS-first**, React 19, TS strict.
+- Frontend service template on the modern toolchain: **Vite+ 1.4** unified toolchain (`vp dev/build/test/lint/fmt/check`), **shadcn/ui base-nova** style on **Base UI** (`@base-ui/react`), **Tailwind v4 CSS-first**, React 19, TS strict.
 - Everything (dev server, Rolldown build, Vitest 5, Oxlint, Oxfmt, Vitest `test` block) is configured in **`vite.config.ts`** — there is no ESLint, Prettier, `.oxlintrc`, or `tailwind.config.js`.
-- Package manager: `bun` only. Dev server: `http://localhost:3000` (the root old app must be stopped while this one logs in — Keycloak redirects to :3000).
+- Package manager: `bun` only. Dev server: `http://localhost:3000` — Keycloak redirects to :3000, so no other instance may hold the port.
 
 ## Commands
 
@@ -33,16 +33,21 @@ Guidelines for automated agents working in this directory. See the repository-ro
 ## Gotchas
 
 - redux-persist's `lib/storage` default import arrives as a module namespace under Rolldown; `store.ts` unwraps it — keep that guard.
-- `vp migrate --full` style git hooks/editor/agent files were intentionally NOT installed into the parent repo.
 - Oxlint JS plugins (incl. `@shadcn/lint`) are an alpha API; if rules stop firing after a `vp` upgrade, re-check `vp check` output rather than assuming green.
 - The only expected console noise is Keycloak's silent-SSO iframe sandbox warning.
 - `KeycloakProvider` has a 15s init watchdog: if the silent-SSO iframe never posts back (origin not registered in the Keycloak client), the app renders logged-out instead of hanging on the loading screen.
-- CI: `.github/workflows/new-app-ci.yml` (check+test+build on `new_app/**` changes) and `new-app-docker.yml` (multi-arch publish on `main`/`release/*` → tag `:new-app-latest`); Dockerfile serves `dist/` via nginx with SPA fallback — verify `docker build new_app` after changing build wiring.
+- CI: `.github/workflows/ci.yml` (check+test+build on every push/PR) and `docker.yml` (multi-arch publish on `main`/`release/*` → `docker.io/<org>/<repo>:latest`); Dockerfile serves `dist/` via nginx with SPA fallback — verify `docker build .` after changing build wiring.
 - `@shadcn/lint` scoping is verified empirically: restyle/arbitrary/static rules fire on app code and stay silent inside `src/components/ui/**`; `no-raw-colors`/`no-unknown-classes` remain active everywhere. Re-check with temporary probe files if the config changes.
 
 ## Local Login
 
-Backend stack: `spring-reactive-mongo-template` dev-infra (Keycloak `http://localhost:8090`, API `http://localhost:8080`), started before `bun run dev`. Credentials in root `.credentials` (user `user`, realm `app`, client `frontend`); never print or commit the password. Verified flows: login/logout redirect, counter persistence, users CRUD + roles combobox + SSE badge, dark mode, pl/en switch, mobile sheet, 404/401 pages — all with zero console errors.
+Backend stack: `spring-reactive-mongo-template` dev-infra (Keycloak `http://localhost:8090`, API `http://localhost:8080`), started before `bun run dev`. Login: user menu → **Login**.
+
+**Env**: committed `.env` holds local-dev defaults (`VITE_APP_DOMAIN`/`_KEYCLOAK_URL`/`_BACKEND_URL`); `.env.template` documents all variables, `.env.*` files (incl. `.env.production`) are git-ignored. Values are inlined at build time — rebuild after changing them, and keep `VITE_APP_DOMAIN` registered in the Keycloak client's redirect/web origins.
+
+**Credentials**: the git-ignored `.credentials` file at the repository root holds the real local Keycloak login (realm `app`, client `frontend`, user `user` / `user@user.com`). `.credentials.template` documents the format — copy it to `.credentials` and fill in values on a fresh clone. If `.credentials` is missing, stop and ask the developer; never guess, create it with real values, or reset passwords unless explicitly asked. Never print the password (watch for trailing punctuation — it is part of the password).
+
+Verified flows: login/logout redirect, silent-SSO restore, counter persistence, users CRUD + roles combobox + SSE badge, dark mode, pl/en switch, mobile sheet, 404/401 pages — all with zero console errors.
 
 ## Keeping This File Current
 

@@ -8,13 +8,15 @@ docker-compose*
 .github
 README.md
 AGENTS.md
-LICENSE
+LICENSE*
 .vscode
 .idea
 .editorconfig
 coverage*
 .DS_Store
 *.log
+.credentials
+.credentials.template
 .env
 .env.local
 .env.*.local

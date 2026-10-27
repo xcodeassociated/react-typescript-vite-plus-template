@@ -11,6 +11,7 @@ node_modules
 dist
 dist-ssr
 *.local
+coverage
 
 # Editor directories and files
 .vscode/*
@@ -23,6 +24,17 @@ dist-ssr
 *.sln
 *.sw?
 
+# AI
+CLAUDE.md
+
 # generated code
 src/graphql/generated/
-.env.local
+
+# env & secrets (`.env` itself is committed as the local-dev default)
+.env.*
+!.env.template
+.credentials
+
+# Browser MCP artifacts
+.playwright-mcp/
+*-snapshot.yml

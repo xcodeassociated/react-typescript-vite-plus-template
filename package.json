@@ -1,5 +1,6 @@
 {
-  "name": "new_app",
+  "name": "vite-shadcn-template",
+  "license": "MIT",
   "private": true,
   "version": "0.0.1",
   "type": "module",
