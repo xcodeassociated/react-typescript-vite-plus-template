@@ -134,7 +134,10 @@ export default defineConfig({
       typeAware: true,
       typeCheck: true,
     },
-    jsPlugins: ["@shadcn/lint", { name: "vite-plus", specifier: "vite-plus/oxlint-plugin" }],
+    jsPlugins: [
+      "@shadcn/lint",
+      { name: "vite-plus", specifier: "vite-plus/oxlint-plugin" },
+    ],
     rules: {
       "vite-plus/prefer-vite-plus-imports": "error",
       "shadcn/no-restyle": ["error", { allow: ["layout"] }],
@@ -167,6 +170,12 @@ export default defineConfig({
       "package-lock.json",
       "yarn.lock",
     ],
+  },
+  test: {
+    globals: true,
+    environment: "jsdom",
+    css: true,
+    setupFiles: ["./src/setupTests.ts"],
   },
   plugins: [react(), tailwindcss()],
   server: {

@@ -20,7 +20,9 @@ export function Home() {
       </CardHeader>
       <CardContent>{t("home.details")}</CardContent>
       <CardFooter>
-        <span className="text-sm text-muted-foreground">{t("home.contact")}</span>
+        <span className="text-sm text-muted-foreground">
+          {t("home.contact")}
+        </span>
       </CardFooter>
     </Card>
   )
