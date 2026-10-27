@@ -52,6 +52,22 @@ src/
 └── store/                # store + persisted counter slice + RTK Query api
 ```
 
+## Docker
+
+`Dockerfile` builds with `oven/bun:1.4-slim` (`bun install` → `generate:graphql` → `vp build`) and serves `dist/` with `nginx:1.30-alpine-slim` (SPA fallback, hashed-asset caching, `/health`). Multi-arch (amd64/arm64) publishing runs in `.github/workflows/new-app-docker.yml` on `main`/`release/*` → `xcodeassociated/react-typescript-vite-template:new-app-latest`.
+
+Build-time config: `VITE_APP_*` are inlined from `.env.production` (CI creates it from repo secrets via `SpicyPizza/create-envfile`) — the deployed origin must be registered in the Keycloak client's redirect/web origins.
+
+```bash
+docker build -t new_app .        # context: new_app/
+docker run --rm -p 3000:80 new_app
+```
+
+## CI
+
+- `.github/workflows/new-app-ci.yml` — every push/PR touching `new_app/`: install → codegen → `vp check` (format + lint + typecheck) → tests → build
+- `.github/workflows/new-app-docker.yml` — `main`/`release/*`: tests first, then multi-arch image publish with GHA layer cache
+
 ## Notes
 
 - `bun run generate:graphql` must run before `build`/`test` after cloning (generated code is git-ignored).

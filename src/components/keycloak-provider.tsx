@@ -28,6 +28,12 @@ interface KeycloakProviderProps {
 const TOKEN_MINI_VALIDITY_SECONDS = 60
 const TOKEN_REFRESH_INTERVAL_MS = 30_000
 
+// If Keycloak's silent-SSO iframe never posts back (e.g. the current origin is
+// not in the client's allowed web-origins, so the redirect is blocked), init()
+// never settles. This watchdog renders the app logged-out after a timeout
+// instead of hanging on the loading screen forever.
+const INIT_TIMEOUT_MS = 15_000
+
 // Initialize the shared Keycloak instance exactly once, even under React
 // StrictMode's double effect invocation in development. Without this guard,
 // init() runs twice, opening two silent-SSO iframes and double-processing the
@@ -52,6 +58,12 @@ export function KeycloakProvider({ children }: KeycloakProviderProps) {
   useEffect(() => {
     let cancelled = false
 
+    const timeout = setTimeout(() => {
+      if (!cancelled) {
+        setInitialized(true)
+      }
+    }, INIT_TIMEOUT_MS)
+
     initKeycloak()
       .then((auth) => {
         if (!cancelled) {
@@ -64,9 +76,11 @@ export function KeycloakProvider({ children }: KeycloakProviderProps) {
           setInitialized(true)
         }
       })
+      .finally(() => clearTimeout(timeout))
 
     return () => {
       cancelled = true
+      clearTimeout(timeout)
     }
   }, [])
 

@@ -36,6 +36,9 @@ Guidelines for automated agents working in this directory. See the repository-ro
 - `vp migrate --full` style git hooks/editor/agent files were intentionally NOT installed into the parent repo.
 - Oxlint JS plugins (incl. `@shadcn/lint`) are an alpha API; if rules stop firing after a `vp` upgrade, re-check `vp check` output rather than assuming green.
 - The only expected console noise is Keycloak's silent-SSO iframe sandbox warning.
+- `KeycloakProvider` has a 15s init watchdog: if the silent-SSO iframe never posts back (origin not registered in the Keycloak client), the app renders logged-out instead of hanging on the loading screen.
+- CI: `.github/workflows/new-app-ci.yml` (check+test+build on `new_app/**` changes) and `new-app-docker.yml` (multi-arch publish on `main`/`release/*` → tag `:new-app-latest`); Dockerfile serves `dist/` via nginx with SPA fallback — verify `docker build new_app` after changing build wiring.
+- `@shadcn/lint` scoping is verified empirically: restyle/arbitrary/static rules fire on app code and stay silent inside `src/components/ui/**`; `no-raw-colors`/`no-unknown-classes` remain active everywhere. Re-check with temporary probe files if the config changes.
 
 ## Local Login
 
