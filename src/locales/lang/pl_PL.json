@@ -1,0 +1,85 @@
+{
+  "cookie_consent": {
+    "title": "Zgoda na używanie ciasteczek",
+    "content": "Używamy cookies, aby zapewnić Ci nejlepsze doświadczenie z przebywania na stronie. Po więcej informacji o tym jak używamy cookies, prosimy o zapoznanie się z naszą polityką prywatności.",
+    "learn_more": "Dowiedz się więcej",
+    "accept_pt1": "Klikając ",
+    "accept_pt2": "wyrażasz zgodę na używanie ciasteczek.",
+    "accept": "Akceptuję",
+    "decline": "Odmawiam"
+  },
+  "menu": {
+    "home": "Strona Główna",
+    "users": "Użytkownicy",
+    "counter": "Licznik",
+    "login": "Zaloguj się",
+    "logout": "Wyloguj się",
+    "search": "Szukaj..."
+  },
+  "theme": {
+    "light": "Jasny",
+    "dark": "Ciemny",
+    "system": "System"
+  },
+  "user_dropdown": {
+    "profile": "Profil",
+    "my_account": "Moje Konto",
+    "settings": "Ustawienia",
+    "select_language": "Wybierz język",
+    "en": "Angielski",
+    "pl": "Polski",
+    "logout": "Wyloguj się",
+    "login": "Zaloguj się",
+    "register": "Zarejestruj się"
+  },
+  "users": {
+    "t1": "Użytkownicy",
+    "t2": "Tabela Użytkowników",
+    "f1": "Wprowadź dane użytkownika do formularza",
+    "id": "ID",
+    "name": "Imię",
+    "name_placeholder": "Wpisz Imię...",
+    "name_validation": "Nazwa użytkownika musi mieć co najmniej 2 znaki",
+    "email": "Email",
+    "email_placeholder": "Wpisz Email...",
+    "email_validation": "Nazwa użytkownika musi mieć co najmniej 2 znaki",
+    "role": "Rola",
+    "role_placeholder": "Wpisz Rolę...",
+    "role_validation": "Należy wybrać rolę",
+    "actions": "Akcje",
+    "submit": "Wyślij",
+    "reset": "Resetuj",
+    "update": "Aktualizuj",
+    "delete": "Usuń",
+    "add": "Dodaj Użytkownika",
+    "role_not_found": "Rola nie znaleziona"
+  },
+  "app": {
+    "name": "Shadcn"
+  },
+  "home": {
+    "section1": "Vite+ + shadcn/ui Starter",
+    "section2": "Szablon React TypeScript",
+    "title": "Szablon React TypeScript",
+    "subtitle": "Nowoczesny szablon frontendu oparty na Vite+, React 19, Base UI i Tailwind CSS v4.",
+    "details": "Aplikacja zawiera Redux Toolkit z RTK Query, Apollo Client (GraphQL), logowanie Keycloak, i18n, motywy oraz przykład CRUD użytkowników z backendem Spring WebFlux.",
+    "contact": "Możesz się ze mną skontaktować poprzez github: xcodeassociated"
+  },
+  "counter": {
+    "title": "Licznik",
+    "subtitle": "React Redux Licznik",
+    "increment": "Zwiększ",
+    "decrement": "Zmniejsz",
+    "increment_by": "Zwiększ o",
+    "add_amount": "Dodaj",
+    "add_async": "Dodaj asynchronicznie",
+    "add_if_odd": "Dodaj jeśli nieparzyste"
+  },
+  "footer": {
+    "text": "Stworzono z ❤️ & Shadcn"
+  },
+  "error": {
+    "unauthorized": "Brak dostępu",
+    "not_found": "Nie znaleziono strony"
+  }
+}

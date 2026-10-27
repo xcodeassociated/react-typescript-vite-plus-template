@@ -1,0 +1,85 @@
+{
+  "cookie_consent": {
+    "title": "Cookie Consent",
+    "content": "We use cookies to ensure you get the best experience on our website. For more information on how we use cookies, please see our cookie policy.",
+    "learn_more": "Learn more",
+    "accept_pt1": "By clicking",
+    "accept_pt2": "you agree to our use of cookies.",
+    "accept": "Accept",
+    "decline": "Decline"
+  },
+  "menu": {
+    "home": "Home",
+    "users": "Users",
+    "counter": "Counter",
+    "login": "Login",
+    "logout": "Logout",
+    "search": "Search..."
+  },
+  "theme": {
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System"
+  },
+  "user_dropdown": {
+    "profile": "Profile",
+    "my_account": "My Account",
+    "settings": "Settings",
+    "select_language": "Select Language",
+    "en": "English",
+    "pl": "Polish",
+    "logout": "Logout",
+    "login": "Login",
+    "register": "Register"
+  },
+  "users": {
+    "t1": "Users",
+    "t2": "Users Table",
+    "f1": "Enter user data into the form below",
+    "id": "ID",
+    "name": "Name",
+    "name_placeholder": "Enter Name...",
+    "name_validation": "Username must be at least 2 characters",
+    "email": "Email",
+    "email_placeholder": "Enter Email...",
+    "email_validation": "Username must be at least 2 characters",
+    "role": "Role",
+    "role_placeholder": "Select roles...",
+    "role_validation": "Role must be selected",
+    "actions": "Actions",
+    "submit": "Submit",
+    "reset": "Reset",
+    "update": "Update",
+    "delete": "Delete",
+    "add": "Add User",
+    "role_not_found": "Role not found"
+  },
+  "app": {
+    "name": "Shadcn"
+  },
+  "home": {
+    "section1": "Vite+ + shadcn/ui Starter",
+    "section2": "React TypeScript Template",
+    "title": "React TypeScript Template",
+    "subtitle": "A modern frontend template built with Vite+, React 19, Base UI and Tailwind CSS v4.",
+    "details": "The app ships with Redux Toolkit and RTK Query, Apollo Client (GraphQL), Keycloak auth, i18n, theming and a users CRUD example backed by Spring WebFlux.",
+    "contact": "You can contact me via github: xcodeassociated"
+  },
+  "counter": {
+    "title": "Counter",
+    "subtitle": "React Redux Counter Example",
+    "increment": "Increment",
+    "decrement": "Decrement",
+    "increment_by": "Increment By",
+    "add_amount": "Add Amount",
+    "add_async": "Add Async",
+    "add_if_odd": "Add If Odd"
+  },
+  "footer": {
+    "text": "Made with ❤️ & Shadcn"
+  },
+  "error": {
+    "unauthorized": "Unauthorized",
+    "not_found": "Not Found"
+  }
+}
