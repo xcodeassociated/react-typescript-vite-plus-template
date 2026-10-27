@@ -1,6 +1,13 @@
-import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react'
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+  type ReactNode,
+} from "react"
 
-import keycloak from '@/lib/keycloak'
+import keycloak from "@/lib/keycloak"
 
 export interface KeycloakContextValue {
   initialized: boolean
@@ -10,7 +17,9 @@ export interface KeycloakContextValue {
   updateToken: () => Promise<boolean>
 }
 
-const KeycloakContext = createContext<KeycloakContextValue | undefined>(undefined)
+const KeycloakContext = createContext<KeycloakContextValue | undefined>(
+  undefined
+)
 
 interface KeycloakProviderProps {
   children: ReactNode
@@ -19,6 +28,23 @@ interface KeycloakProviderProps {
 const TOKEN_MINI_VALIDITY_SECONDS = 60
 const TOKEN_REFRESH_INTERVAL_MS = 30_000
 
+// Initialize the shared Keycloak instance exactly once, even under React
+// StrictMode's double effect invocation in development. Without this guard,
+// init() runs twice, opening two silent-SSO iframes and double-processing the
+// login authorization code.
+let initPromise: Promise<boolean> | null = null
+
+function initKeycloak(): Promise<boolean> {
+  if (!initPromise) {
+    initPromise = keycloak.init({
+      onLoad: "check-sso",
+      silentCheckSsoRedirectUri: `${import.meta.env.VITE_APP_DOMAIN}/silent-check-sso.html`,
+      checkLoginIframe: false,
+    })
+  }
+  return initPromise
+}
+
 export function KeycloakProvider({ children }: KeycloakProviderProps) {
   const [initialized, setInitialized] = useState(false)
   const [authenticated, setAuthenticated] = useState(false)
@@ -26,12 +52,7 @@ export function KeycloakProvider({ children }: KeycloakProviderProps) {
   useEffect(() => {
     let cancelled = false
 
-    keycloak
-      .init({
-        onLoad: 'check-sso',
-        silentCheckSsoRedirectUri: `${import.meta.env.VITE_APP_DOMAIN}/silent-check-sso.html`,
-        checkLoginIframe: false,
-      })
+    initKeycloak()
       .then((auth) => {
         if (!cancelled) {
           setAuthenticated(auth)
@@ -56,30 +77,28 @@ export function KeycloakProvider({ children }: KeycloakProviderProps) {
     }
 
     const interval = setInterval(() => {
+      // resolves true when the token was refreshed, false when it is still
+      // valid for at least minValidity seconds; rejects only when the session
+      // is actually gone (refresh failed)
       keycloak
         .updateToken(TOKEN_MINI_VALIDITY_SECONDS)
-        .then((granted) => {
-          if (!granted) {
-            setAuthenticated(false)
-          }
-        })
-        .catch(() => {
-          setAuthenticated(false)
-        })
+        .catch(() => setAuthenticated(false))
     }, TOKEN_REFRESH_INTERVAL_MS)
 
     return () => clearInterval(interval)
   }, [initialized, authenticated])
 
   const login = useCallback(() => {
-    keycloak.login({ redirectUri: window.location.href }).then(() => {})
+    void keycloak
+      .login({ redirectUri: window.location.href })
+      .catch((error: unknown) => console.error("Keycloak login failed", error))
   }, [])
 
   const logout = useCallback(() => {
     keycloak
       .logout({ redirectUri: `${import.meta.env.VITE_APP_DOMAIN}/` })
       .then(() => {})
-      .catch((error: unknown) => console.error('Keycloak logout failed', error))
+      .catch((error: unknown) => console.error("Keycloak logout failed", error))
   }, [])
 
   const updateToken = useCallback(async () => {
@@ -91,15 +110,25 @@ export function KeycloakProvider({ children }: KeycloakProviderProps) {
     }
   }, [])
 
-  const value: KeycloakContextValue = { initialized, authenticated, login, logout, updateToken }
+  const value: KeycloakContextValue = {
+    initialized,
+    authenticated,
+    login,
+    logout,
+    updateToken,
+  }
 
-  return <KeycloakContext.Provider value={value}>{children}</KeycloakContext.Provider>
+  return (
+    <KeycloakContext.Provider value={value}>
+      {children}
+    </KeycloakContext.Provider>
+  )
 }
 
 export function useKeycloak(): KeycloakContextValue {
   const context = useContext(KeycloakContext)
   if (!context) {
-    throw new Error('useKeycloak must be used within a KeycloakProvider')
+    throw new Error("useKeycloak must be used within a KeycloakProvider")
   }
   return context
 }

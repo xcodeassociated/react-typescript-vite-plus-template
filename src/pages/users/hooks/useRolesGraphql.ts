@@ -1,12 +1,22 @@
-import { useMemo } from 'react'
-import { useQuery } from '@apollo/client/react'
+import { useMemo } from "react"
+import { useQuery } from "@apollo/client/react"
 
-import { graphql } from '@/graphql/generated'
-import type { Role } from '@/pages/users/api/usersApi.types'
+import { graphql } from "@/graphql/generated"
+import type { Role } from "@/pages/users/api/usersApi.types"
 
 export const GetAllPermissionsDocument = graphql(`
-  query GetAllPermissions($page: Int, $size: Int, $sort: String, $direction: String) {
-    getAllPermissions(page: $page, size: $size, sort: $sort, direction: $direction) {
+  query GetAllPermissions(
+    $page: Int
+    $size: Int
+    $sort: String
+    $direction: String
+  ) {
+    getAllPermissions(
+      page: $page
+      size: $size
+      sort: $sort
+      direction: $direction
+    ) {
       id
       name
     }
@@ -18,8 +28,8 @@ export function useRolesGraphql() {
     variables: {
       page: 0,
       size: 50,
-      sort: 'id',
-      direction: 'ASC',
+      sort: "id",
+      direction: "ASC",
     },
   })
 
@@ -27,12 +37,10 @@ export function useRolesGraphql() {
     if (!data?.getAllPermissions) {
       return undefined
     }
-    return data.getAllPermissions.map(
-      (permission): Role => ({
-        _id: permission?.id ?? undefined,
-        name: permission?.name ?? '',
-      }),
-    )
+    return data.getAllPermissions.map((permission): Role => ({
+      _id: permission?.id ?? undefined,
+      name: permission?.name ?? "",
+    }))
   }, [data])
 
   return { roles, loading, error }

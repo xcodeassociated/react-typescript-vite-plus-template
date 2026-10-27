@@ -1,25 +1,32 @@
-import { createAsyncThunk, createSlice, type PayloadAction } from '@reduxjs/toolkit'
+import {
+  createAsyncThunk,
+  createSlice,
+  type PayloadAction,
+} from "@reduxjs/toolkit"
 
-import type { AppDispatch, RootState } from '@/store/store'
-import { fetchCount } from './api/counterAPI'
+import type { AppDispatch, RootState } from "@/store/store"
+import { fetchCount } from "./api/counterAPI"
 
 export interface CounterState {
   value: number
-  status: 'idle' | 'loading' | 'failed'
+  status: "idle" | "loading" | "failed"
 }
 
 const initialState: CounterState = {
   value: 0,
-  status: 'idle',
+  status: "idle",
 }
 
-export const incrementAsync = createAsyncThunk('counter/fetchCount', async (amount: number) => {
-  const response = await fetchCount(amount)
-  return response.data
-})
+export const incrementAsync = createAsyncThunk(
+  "counter/fetchCount",
+  async (amount: number) => {
+    const response = await fetchCount(amount)
+    return response.data
+  }
+)
 
 export const counterSlice = createSlice({
-  name: 'counter',
+  name: "counter",
   initialState,
   reducers: {
     increment: (state) => {
@@ -35,14 +42,17 @@ export const counterSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(incrementAsync.pending, (state) => {
-        state.status = 'loading'
+        state.status = "loading"
       })
-      .addCase(incrementAsync.fulfilled, (state, action: PayloadAction<number>) => {
-        state.status = 'idle'
-        state.value += action.payload
-      })
+      .addCase(
+        incrementAsync.fulfilled,
+        (state, action: PayloadAction<number>) => {
+          state.status = "idle"
+          state.value += action.payload
+        }
+      )
       .addCase(incrementAsync.rejected, (state) => {
-        state.status = 'failed'
+        state.status = "failed"
       })
   },
 })
@@ -52,8 +62,7 @@ export const { increment, decrement, incrementByAmount } = counterSlice.actions
 export const selectCount = (state: RootState) => state.counter.value
 
 export const incrementIfOdd =
-  (amount: number) =>
-  (dispatch: AppDispatch, getState: () => RootState) => {
+  (amount: number) => (dispatch: AppDispatch, getState: () => RootState) => {
     if (selectCount(getState()) % 2 === 1) {
       dispatch(incrementByAmount(amount))
     }

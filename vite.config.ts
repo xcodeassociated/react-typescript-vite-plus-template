@@ -149,17 +149,18 @@ export default defineConfig({
     },
     ignorePatterns: [
       "node_modules/",
+      "dist/",
       "coverage/",
+      "src/graphql/generated/",
       ".pnpm-store/",
       "pnpm-lock.yaml",
       "package-lock.json",
-      "pnpm-lock.yaml",
       "yarn.lock",
     ],
   },
   plugins: [react(), tailwindcss()],
   server: {
-    host: '0.0.0.0',
+    host: "0.0.0.0",
     port: 3000,
   },
   resolve: {

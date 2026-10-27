@@ -36,7 +36,12 @@ input UserInput {
 }
 
 type Query {
-  getAllPermissions(page: Int, size: Int, sort: String, direction: String): [Permission]
+  getAllPermissions(
+    page: Int
+    size: Int
+    sort: String
+    direction: String
+  ): [Permission]
   getPermission(id: String): Permission
 
   getAllUsers(page: Int, size: Int, sort: String, direction: String): [User]

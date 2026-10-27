@@ -81,5 +81,12 @@
   "error": {
     "unauthorized": "Unauthorized",
     "not_found": "Not Found"
+  },
+  "sse": {
+    "connected": "Live updates connected",
+    "connecting": "Connecting to live updates...",
+    "disconnected": "Live updates disconnected",
+    "last_update": "Last update",
+    "reconnect": "Reconnect"
   }
 }

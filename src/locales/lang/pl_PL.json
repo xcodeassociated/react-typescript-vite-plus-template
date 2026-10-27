@@ -81,5 +81,12 @@
   "error": {
     "unauthorized": "Brak dostępu",
     "not_found": "Nie znaleziono strony"
+  },
+  "sse": {
+    "connected": "Aktualizacje na żywo połączone",
+    "connecting": "Łączenie z aktualizacjami na żywo...",
+    "disconnected": "Aktualizacje na żywo rozłączone",
+    "last_update": "Ostatnia aktualizacja",
+    "reconnect": "Połącz ponownie"
   }
 }

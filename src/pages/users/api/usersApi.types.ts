@@ -40,6 +40,11 @@ export interface Page {
   direction: string
 }
 
-export function buildPage(page = 0, pageSize = 10, sort = 'id', direction = 'ASC'): Page {
+export function buildPage(
+  page = 0,
+  pageSize = 10,
+  sort = "id",
+  direction = "ASC"
+): Page {
   return { page, pageSize, sort, direction }
 }
