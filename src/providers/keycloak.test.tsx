@@ -42,7 +42,7 @@ async function loadProvider() {
   // resetModules clears the module-level init-once promise so each test
   // exercises a "fresh page load".
   vi.resetModules()
-  return import("@/components/keycloak-provider")
+  return import("@/providers/keycloak")
 }
 
 function makeProbe(useKeycloak: () => KCState) {

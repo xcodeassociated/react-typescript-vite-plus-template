@@ -16,9 +16,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { DataTable } from "@/components/custom/data-table"
-import { SseStatusBar } from "@/components/custom/sse-status-bar"
-import { LoadingScreenMemo } from "@/components/app/loading-screen"
+import { DataTable } from "@/pages/users/components/data-table"
+import { SseStatusBar } from "@/pages/users/components/sse-status-bar"
+import { LoadingScreenMemo } from "@/components/loading-screen"
 import { UserDialog } from "./components/user-dialog"
 import { usersApi } from "./api/usersApi"
 import type { User, UserInput } from "./api/usersApi.types"

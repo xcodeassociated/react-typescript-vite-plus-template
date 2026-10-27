@@ -5,10 +5,10 @@ import { BrowserRouter } from "react-router-dom"
 import { describe, expect, it, vi } from "vite-plus/test"
 
 import App from "@/App"
-import { ThemeProvider } from "@/components/theme-provider"
+import { ThemeProvider } from "@/providers/theme"
 import { setupStore } from "@/store/store"
 
-vi.mock("@/components/keycloak-provider", () => ({
+vi.mock("@/providers/keycloak", () => ({
   useKeycloak: () => ({
     initialized: true,
     authenticated: true,

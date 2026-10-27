@@ -1,7 +1,7 @@
 import { useLocation } from "react-router-dom"
 import { Link } from "react-router-dom"
 
-import type { MenuItem } from "@/components/app/menu-item"
+import type { MenuItem } from "@/components/menu-item"
 import {
   NavigationMenuItem,
   NavigationMenuLink,

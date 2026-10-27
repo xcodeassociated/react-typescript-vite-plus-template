@@ -13,7 +13,7 @@ import { BrowserRouter } from "react-router-dom"
 import { http, HttpResponse } from "msw"
 import { setupServer } from "msw/node"
 
-import { ThemeProvider } from "@/components/theme-provider"
+import { ThemeProvider } from "@/providers/theme"
 import { GetAllPermissionsDocument } from "@/graphql/generated/graphql"
 import { setupStore } from "@/store/store"
 import "@/locales/i18n"

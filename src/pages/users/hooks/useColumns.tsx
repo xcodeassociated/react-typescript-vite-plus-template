@@ -12,7 +12,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { features, type DataTableColumns } from "@/components/custom/data-table"
+import {
+  features,
+  type DataTableColumns,
+} from "@/pages/users/components/data-table"
 import type { User } from "@/pages/users/api/usersApi.types"
 
 const helper = createColumnHelper<typeof features, User>()

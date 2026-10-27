@@ -1,6 +1,6 @@
 import { memo } from "react"
 
-import { Spinner } from "@/components/custom/spinner"
+import { Spinner } from "@/components/spinner"
 
 export function LoadingScreen() {
   return (

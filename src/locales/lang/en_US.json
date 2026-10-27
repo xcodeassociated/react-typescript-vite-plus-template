@@ -80,7 +80,9 @@
   },
   "error": {
     "unauthorized": "Unauthorized",
-    "not_found": "Not Found"
+    "not_found": "Not Found",
+    "something_wrong": "Something went wrong",
+    "try_again": "Try again"
   },
   "sse": {
     "connected": "Live updates connected",

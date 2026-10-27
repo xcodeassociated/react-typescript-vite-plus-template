@@ -39,16 +39,19 @@ Login via the user menu (top right). Real credentials live in the git-ignored `.
 
 ```
 src/
-├── components/
-│   ├── ui/               # generated shadcn (base-nova) — do not hand-edit
-│   ├── app/              # nav, side menu, user dropdown, loading screen
-│   ├── custom/           # data-table, roles-combobox, cookie-consent, mode-toggle, sse bar, spinner
-│   ├── keycloak-provider.tsx  # own Keycloak context (keycloak-js)
-│   └── theme-provider.tsx     # light/dark/system, localStorage
+├── components/           # shared chrome: nav, side-menu, user-dropdown, cookie-consent,
+│   │                     # mode-toggle, loading-screen, spinner, error-boundary
+│   └── ui/               # generated shadcn (base-nova) — do not hand-edit
 ├── graphql/              # schema.graphql + generated/ (codegen client preset; git-ignored)
 ├── lib/                  # keycloak.ts, apollo.ts, utils (cn re-export)
 ├── locales/              # i18next init + en_US / pl_PL
-├── pages/                # counter, users (RTK Query + GraphQL + SSE CRUD), home, error
+├── pages/                # feature folders with colocated api/components/hooks/tests
+│   ├── counter/          # RTK slice demo
+│   ├── home/             # landing card
+│   ├── error/            # 401 / 404 pages
+│   └── users/            # RTK Query + GraphQL + SSE CRUD; owns its data-table,
+│                         # roles combobox and SSE status bar under components/
+├── providers/            # keycloak.tsx (own Keycloak context), theme.tsx (light/dark/system)
 └── store/                # store + persisted counter slice + RTK Query api
 ```
 
@@ -72,7 +75,7 @@ docker run --rm -p 3000:80 vite-shadcn-template
 
 - `bun run generate:graphql` must run before `build`/`test` after cloning (generated code is git-ignored).
 - Formatting is Oxfmt (double quotes, 80 cols) — `vp check --fix` normalizes everything; re-run `generate:graphql` after formatting GraphQL document template literals.
-- `src/components/ui/**` is excluded from the shadcn design-system lint rules (components own their appearance); app code under `src/components/app|custom` and `src/pages` is fully linted.
+- `src/components/ui/**` is excluded from the shadcn design-system lint rules (components own their appearance); every other source file (`src/components/*`, `src/providers`, `src/pages/**`, `src/lib`) is fully linted.
 - `vp test` uses the `test` block in `vite.config.ts` (jsdom + globals + `src/setupTests.ts`).
 
 ## License

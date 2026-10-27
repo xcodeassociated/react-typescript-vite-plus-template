@@ -1,7 +1,7 @@
 import { useLocation, useNavigate } from "react-router-dom"
 import { Menu } from "lucide-react"
 
-import type { MenuItem } from "@/components/app/menu-item"
+import type { MenuItem } from "@/components/menu-item"
 import { Button } from "@/components/ui/button"
 import {
   Sheet,

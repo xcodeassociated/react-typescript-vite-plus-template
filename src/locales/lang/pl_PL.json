@@ -80,7 +80,9 @@
   },
   "error": {
     "unauthorized": "Brak dostępu",
-    "not_found": "Nie znaleziono strony"
+    "not_found": "Nie znaleziono strony",
+    "something_wrong": "Coś poszło nie tak",
+    "try_again": "Spróbuj ponownie"
   },
   "sse": {
     "connected": "Aktualizacje na żywo połączone",

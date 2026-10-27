@@ -1,6 +1,6 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react"
 
-import { getAccessToken } from "@/components/keycloak-provider"
+import { getAccessToken } from "@/providers/keycloak"
 import type { Page, User, UserInput, UserInputDto } from "./usersApi.types"
 
 function toDto(data: UserInput): UserInputDto {

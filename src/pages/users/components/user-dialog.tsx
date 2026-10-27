@@ -21,7 +21,7 @@ import {
   FieldLabel,
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
-import { RolesCombobox } from "@/components/custom/roles-combobox"
+import { RolesCombobox } from "@/pages/users/components/roles-combobox"
 import type { Role, UserInput } from "@/pages/users/api/usersApi.types"
 
 const userFormSchema = z.object({

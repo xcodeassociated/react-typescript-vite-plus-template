@@ -10,7 +10,7 @@ import {
 } from "lucide-react"
 import { toast } from "sonner"
 
-import { useKeycloak } from "@/components/keycloak-provider"
+import { useKeycloak } from "@/providers/keycloak"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
