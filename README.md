@@ -55,6 +55,34 @@ src/
 └── store/                # store + persisted counter slice + RTK Query api
 ```
 
+## UI kit — installed shadcn components
+
+Generated into `src/components/ui/` via `bunx --bun shadcn@latest add <name>` (registry: shadcn Base UI `base-nova`, preset `b0`). Never hand-edit; re-add or `diff` to update. This is the authoritative list:
+
+| Component         | Used by                                                                                                       |
+| ----------------- | ------------------------------------------------------------------------------------------------------------- |
+| `badge`           | sse-status-bar                                                                                                |
+| `button`          | everywhere (nav, dialogs, table, counter, error-boundary…)                                                    |
+| `card`            | home, counter, users, error-boundary                                                                          |
+| `combobox`        | roles-combobox (chips multi-select)                                                                           |
+| `command`         | — (scaffold default, currently unused)                                                                        |
+| `dialog`          | user-dialog                                                                                                   |
+| `dropdown-menu`   | user-dropdown-menu, mode-toggle, table row actions                                                            |
+| `field`           | user-dialog form layout (the `form` component is a stub in this preset — use `field` + react-hook-form + zod) |
+| `input-group`     | App header search; also a dependency of `combobox`                                                            |
+| `input`           | App search, user-dialog, counter                                                                              |
+| `label`           | internally by `field`                                                                                         |
+| `navigation-menu` | App header, nav-item                                                                                          |
+| `popover`         | — (installed, currently unused)                                                                               |
+| `select`          | data-table page-size picker                                                                                   |
+| `separator`       | internally by `field`                                                                                         |
+| `sheet`           | mobile side menu                                                                                              |
+| `sonner`          | App `<Toaster>` + all toasts                                                                                  |
+| `table`           | data-table                                                                                                    |
+| `textarea`        | internally by `input-group`                                                                                   |
+
+Add a component with `bunx --bun shadcn@latest add <name>` and update this table in the same change.
+
 ## Docker
 
 `Dockerfile` builds with `oven/bun:1.4-slim` (`bun install` → `generate:graphql` → `vp build`) and serves `dist/` with `nginx:1.30-alpine-slim` (SPA fallback, hashed-asset caching, `/health`). Multi-arch (amd64/arm64) publishing runs in `.github/workflows/docker.yml` on `main`/`release/*` → `docker.io/<org>/<repo>:latest`.
