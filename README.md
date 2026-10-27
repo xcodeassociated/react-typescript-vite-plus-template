@@ -90,8 +90,8 @@ Add a component with `bunx --bun shadcn@latest add <name>` and update this table
 Build-time config: `VITE_APP_*` are inlined from `.env.production` (CI creates it from repo secrets via `SpicyPizza/create-envfile`) — the deployed origin must be registered in the Keycloak client's redirect/web origins.
 
 ```bash
-docker build -t vite-shadcn-template .
-docker run --rm -p 3000:80 vite-shadcn-template
+docker build -t react-typescript-vite-plus-template .
+docker run --rm -p 3000:80 react-typescript-vite-plus-template
 ```
 
 ## CI
