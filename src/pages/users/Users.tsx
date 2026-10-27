@@ -153,7 +153,7 @@ export function Users() {
 
   if (users.isError) {
     return (
-      <div className="flex w-full flex-col gap-4">
+      <div className="flex w-full min-w-0 flex-col gap-4">
         <SseStatusBar
           connectionStatus={connectionStatus}
           lastMessage={lastMessage}
@@ -171,7 +171,7 @@ export function Users() {
   }
 
   return (
-    <div className="flex w-full flex-col gap-4">
+    <div className="flex w-full min-w-0 flex-col gap-4">
       <SseStatusBar
         connectionStatus={connectionStatus}
         lastMessage={lastMessage}
@@ -183,7 +183,7 @@ export function Users() {
           <CardDescription>{t("users.t2")}</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="flex flex-col gap-4">
+          <div className="flex w-full min-w-0 flex-col gap-4">
             <UserDialog
               open={dialogOpen}
               onOpenChange={setDialogOpen}

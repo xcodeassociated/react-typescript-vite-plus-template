@@ -108,14 +108,16 @@ function App() {
           <UserDropdownMenu />
         </header>
         <main className="flex flex-1 flex-col gap-6 bg-muted/40 p-4 md:gap-10 md:p-10">
-          <div className="mx-auto grid w-full max-w-6xl content-start justify-items-center gap-6">
+          <div className="mx-auto grid w-full max-w-6xl grid-cols-1 content-start justify-items-center gap-6">
             <div className="text-center">
-              <div className="text-4xl font-bold">{t("home.section1")}</div>
-              <div className="text-lg text-muted-foreground">
+              <div className="text-2xl font-bold sm:text-4xl">
+                {t("home.section1")}
+              </div>
+              <div className="text-base text-muted-foreground sm:text-lg">
                 {t("home.section2")}
               </div>
             </div>
-            <div className="w-full justify-items-center">
+            <div className="grid w-full min-w-0 grid-cols-1">
               <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/unauthorized" element={<Unauthorized />} />

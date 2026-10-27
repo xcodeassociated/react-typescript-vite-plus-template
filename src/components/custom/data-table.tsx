@@ -157,8 +157,8 @@ export function DataTable<TData extends RowData>({
   })
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="rounded-lg border">
+    <div className="flex w-full min-w-0 flex-col gap-4">
+      <div className="w-full min-w-0 rounded-lg border">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
