@@ -182,33 +182,35 @@ export function Users() {
           <CardTitle>{t("users.t1")}</CardTitle>
           <CardDescription>{t("users.t2")}</CardDescription>
         </CardHeader>
-        <CardContent className="flex flex-col gap-4">
-          <UserDialog
-            open={dialogOpen}
-            onOpenChange={setDialogOpen}
-            data={editing}
-            roles={roles ?? []}
-            onSubmit={handleSubmit}
-          />
-          <Button
-            variant="outline"
-            className="self-end"
-            onClick={() => {
-              setEditing(undefined)
-              setDialogOpen(true)
-            }}
-          >
-            {t("users.add")}
-          </Button>
-          <DataTable
-            columns={columns}
-            data={users.data ?? emptyUsers}
-            total={usersCount.data ?? 0}
-            pagination={pagination}
-            onPaginationChange={handlePaginationChange}
-            sorting={sorting}
-            onSortingChange={handleSortingChange}
-          />
+        <CardContent>
+          <div className="flex flex-col gap-4">
+            <UserDialog
+              open={dialogOpen}
+              onOpenChange={setDialogOpen}
+              data={editing}
+              roles={roles ?? []}
+              onSubmit={handleSubmit}
+            />
+            <Button
+              variant="outline"
+              className="self-end"
+              onClick={() => {
+                setEditing(undefined)
+                setDialogOpen(true)
+              }}
+            >
+              {t("users.add")}
+            </Button>
+            <DataTable
+              columns={columns}
+              data={users.data ?? emptyUsers}
+              total={usersCount.data ?? 0}
+              pagination={pagination}
+              onPaginationChange={handlePaginationChange}
+              sorting={sorting}
+              onSortingChange={handleSortingChange}
+            />
+          </div>
         </CardContent>
       </Card>
     </div>

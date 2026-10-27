@@ -16,6 +16,15 @@ export default defineConfig({
     ignorePatterns: ["dist"],
     overrides: [
       {
+        // Generated shadcn components own their appearance (see shadcn-ui/lint docs/adoption.md)
+        files: ["src/components/ui/**"],
+        rules: {
+          "shadcn/no-restyle": "off",
+          "shadcn/no-arbitrary-values": "off",
+          "shadcn/require-static-classes": "off",
+        },
+      },
+      {
         files: ["**/*.{ts,tsx}"],
         rules: {
           "constructor-super": "error",
@@ -125,14 +134,15 @@ export default defineConfig({
       typeAware: true,
       typeCheck: true,
     },
-    jsPlugins: [
-      {
-        name: "vite-plus",
-        specifier: "vite-plus/oxlint-plugin",
-      },
-    ],
+    jsPlugins: ["@shadcn/lint", { name: "vite-plus", specifier: "vite-plus/oxlint-plugin" }],
     rules: {
       "vite-plus/prefer-vite-plus-imports": "error",
+      "shadcn/no-restyle": ["error", { allow: ["layout"] }],
+      "shadcn/no-raw-colors": "error",
+      "shadcn/no-arbitrary-values": ["error", { allow: ["layout"] }],
+      "shadcn/no-inline-styles": "error",
+      "shadcn/require-static-classes": "error",
+      "shadcn/no-unknown-classes": "warn",
     },
   },
   fmt: {

@@ -19,8 +19,8 @@ export function Home() {
         <CardDescription>{t("home.subtitle")}</CardDescription>
       </CardHeader>
       <CardContent>{t("home.details")}</CardContent>
-      <CardFooter className="text-sm text-muted-foreground">
-        {t("home.contact")}
+      <CardFooter>
+        <span className="text-sm text-muted-foreground">{t("home.contact")}</span>
       </CardFooter>
     </Card>
   )
