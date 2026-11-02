@@ -29,14 +29,14 @@ export function Counter() {
   const incrementValue = Number(incrementAmount) || 0
 
   return (
-    <Card className="w-full max-w-xl">
+    <Card className="w-full max-w-4xl">
       <CardHeader>
         <CardTitle>{t("counter.title")}</CardTitle>
         <CardDescription>{t("counter.subtitle")}</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="flex flex-col gap-4">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center justify-center gap-6">
             <Button
               aria-label={t("counter.decrement")}
               onClick={() => dispatch(decrement())}
@@ -53,7 +53,7 @@ export function Counter() {
               +
             </Button>
           </div>
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex flex-wrap items-center justify-center gap-3">
             <Input
               className="w-24 text-center"
               aria-label={t("counter.increment_by")}
