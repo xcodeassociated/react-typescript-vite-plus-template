@@ -76,4 +76,68 @@ describe("usersApi request auth", () => {
 
     expect(seenAuthHeader).toBe("Bearer integration-token")
   })
+
+  it("URL-encodes sort so crafted URL state cannot inject query params", async () => {
+    let seenUrl = ""
+    server.use(
+      http.get(
+        `${import.meta.env.VITE_APP_BACKEND_URL}/coroutine/users`,
+        ({ request }) => {
+          seenUrl = request.url
+          return HttpResponse.json([])
+        }
+      )
+    )
+    const store = setupStore()
+
+    await store
+      .dispatch(
+        usersApi.endpoints.getAllUsers.initiate({
+          page: 0,
+          pageSize: 5,
+          sort: "name&direction=DESC&x",
+          direction: "ASC",
+        })
+      )
+      .unwrap()
+
+    const params = new URL(seenUrl).searchParams
+    // the crafted value stays a single sort param — no pollution of direction
+    expect(params.get("sort")).toBe("name&direction=DESC&x")
+    expect(params.get("direction")).toBe("ASC")
+  })
+
+  it("refetches active queries when the window regains focus", async () => {
+    let getCount = 0
+    server.use(
+      http.get(
+        `${import.meta.env.VITE_APP_BACKEND_URL}/coroutine/users`,
+        () => {
+          getCount += 1
+          return HttpResponse.json([])
+        }
+      )
+    )
+    const store = setupStore()
+    const sub = store.dispatch(
+      usersApi.endpoints.getAllUsers.initiate({
+        page: 0,
+        pageSize: 5,
+        sort: "_id",
+        direction: "ASC",
+      })
+    )
+    await sub.unwrap()
+    expect(getCount).toBe(1)
+
+    // the window-focus wiring dispatches this action; refetchOnFocus must
+    // make active queries refresh with it (alt+tab freshness backstop)
+    store.dispatch(usersApi.internalActions.onFocus())
+    for (let i = 0; i < 20 && getCount < 2; i++) {
+      await new Promise((resolve) => setTimeout(resolve, 25))
+    }
+    expect(getCount).toBe(2)
+
+    sub.unsubscribe()
+  })
 })

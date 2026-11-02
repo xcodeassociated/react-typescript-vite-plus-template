@@ -54,5 +54,6 @@ export type AppStore = ReturnType<typeof setupStore>
 export type RootState = ReturnType<typeof rootReducer>
 export type AppDispatch = AppStore["dispatch"]
 
-// enables refetchOnFocus / refetchOnReconnect for RTK Query
+// wires window focus/online events -> actions; the actual refetching is
+// opted into per-API (usersApi sets refetchOnFocus/refetchOnReconnect)
 setupListeners(store.dispatch)
