@@ -13,7 +13,7 @@ export function Home() {
   const { t } = useTranslation("main")
 
   return (
-    <Card className="w-full max-w-xl">
+    <Card className="w-full max-w-4xl">
       <CardHeader>
         <CardTitle>{t("home.title")}</CardTitle>
         <CardDescription>{t("home.subtitle")}</CardDescription>

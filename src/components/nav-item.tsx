@@ -15,7 +15,7 @@ export function NavMenuItem({ item }: NavMenuItemProps) {
   const location = useLocation()
 
   return (
-    <NavigationMenuItem>
+    <NavigationMenuItem className="mx-1">
       <NavigationMenuLink
         active={location.pathname === item.route}
         render={<Link to={item.route} />}
