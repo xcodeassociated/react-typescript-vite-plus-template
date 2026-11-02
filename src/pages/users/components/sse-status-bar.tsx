@@ -1,10 +1,7 @@
 import { useTranslation } from "react-i18next"
 
 import { Badge } from "@/components/ui/badge"
-import type {
-  SseConnectionStatus,
-  SseMessage,
-} from "@/pages/users/hooks/useSseUsers"
+import type { SseConnectionStatus, SseMessage } from "@/hooks/useSseUsers"
 
 export interface SseStatusBarProps {
   connectionStatus: SseConnectionStatus

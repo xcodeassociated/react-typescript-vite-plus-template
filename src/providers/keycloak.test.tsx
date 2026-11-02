@@ -9,6 +9,7 @@ const kc = vi.hoisted(() => ({
   login: vi.fn<(options?: Record<string, unknown>) => Promise<void>>(),
   logout: vi.fn<(options?: Record<string, unknown>) => Promise<void>>(),
   updateToken: vi.fn<(minValidity?: number) => Promise<boolean>>(),
+  clearToken: vi.fn<() => Promise<void>>(),
   authenticated: false,
   token: undefined as string | undefined,
   idToken: undefined as string | undefined,
@@ -28,6 +29,7 @@ interface KCState {
   authenticated: boolean
   login: () => void
   logout: () => void
+  expireSession: () => void
 }
 
 // Mirror of keycloak-js' setToken/clearToken side effects: authenticated is
@@ -58,6 +60,7 @@ function makeProbe(useKeycloak: () => KCState) {
         </span>
         <button onClick={state.login}>login</button>
         <button onClick={state.logout}>logout</button>
+        <button onClick={state.expireSession}>expire</button>
       </div>
     )
   }
@@ -83,6 +86,7 @@ beforeEach(() => {
   kc.login = vi.fn().mockResolvedValue(undefined)
   kc.logout = vi.fn().mockResolvedValue(undefined)
   kc.updateToken = vi.fn().mockResolvedValue(false)
+  kc.clearToken = vi.fn().mockResolvedValue(undefined)
   setSession(false)
   kc.onReady = undefined
   kc.onAuthSuccess = undefined
@@ -297,6 +301,102 @@ describe("KeycloakProvider login/logout", () => {
     expect(kc.logout).toHaveBeenCalledWith({
       redirectUri: "http://localhost:3000/",
     })
+  })
+})
+
+describe("KeycloakProvider expireSession (server-side revocation)", () => {
+  it("drops the local session without redirecting, flipping auth state", async () => {
+    setSession(true)
+    kc.init.mockResolvedValue(true)
+    // Mirror keycloak-js: clearToken clears the fields and fires onAuthLogout.
+    kc.clearToken = vi.fn(async () => {
+      setSession(false)
+      kc.onAuthLogout?.()
+    })
+
+    await renderProvider()
+    await waitFor(() => {
+      expect(readState().authenticated).toBe(true)
+    })
+
+    await act(async () => {
+      screen.getByText("expire").click()
+    })
+
+    expect(kc.clearToken).toHaveBeenCalledOnce()
+    expect(kc.logout).not.toHaveBeenCalled() // no redirect — session is gone
+    expect(readState()).toEqual({ initialized: true, authenticated: false })
+  })
+
+  it("marks unauthenticated even when keycloak-js no-ops the clear", async () => {
+    setSession(true)
+    kc.init.mockResolvedValue(true)
+    // No-token path in keycloak-js: fields cleared, no onAuthLogout event —
+    // the settle-sync in expireSession must still flip the state.
+    kc.clearToken = vi.fn(async () => {
+      setSession(false)
+    })
+
+    await renderProvider()
+    await waitFor(() => {
+      expect(readState().authenticated).toBe(true)
+    })
+
+    await act(async () => {
+      screen.getByText("expire").click()
+    })
+
+    expect(readState()).toEqual({ initialized: true, authenticated: false })
+  })
+})
+
+describe("KeycloakProvider wake revalidation", () => {
+  it("forces a token re-check on online/visibility when authenticated", async () => {
+    setSession(true)
+    kc.init.mockResolvedValue(true)
+    kc.updateToken.mockResolvedValue(true)
+
+    await renderProvider()
+    await waitFor(() => {
+      expect(readState().authenticated).toBe(true)
+    })
+
+    // updateToken(-1) always hits the token endpoint: a remotely killed
+    // session answers 400 -> clearToken -> onAuthLogout -> routes lock.
+    kc.updateToken.mockClear()
+    act(() => {
+      window.dispatchEvent(new Event("online"))
+    })
+    expect(kc.updateToken).toHaveBeenCalledWith(-1)
+
+    kc.updateToken.mockClear()
+    act(() => {
+      document.dispatchEvent(new Event("visibilitychange"))
+    })
+    expect(kc.updateToken).toHaveBeenCalledWith(-1)
+
+    // Page Lifecycle resume: wake from sleep with no online/visibility event
+    kc.updateToken.mockClear()
+    act(() => {
+      window.dispatchEvent(new Event("resume"))
+    })
+    expect(kc.updateToken).toHaveBeenCalledWith(-1)
+  })
+
+  it("does not revalidate while logged out", async () => {
+    kc.init.mockResolvedValue(false)
+
+    await renderProvider()
+    await waitFor(() => {
+      expect(readState().initialized).toBe(true)
+    })
+
+    kc.updateToken.mockClear()
+    act(() => {
+      window.dispatchEvent(new Event("online"))
+      document.dispatchEvent(new Event("visibilitychange"))
+    })
+    expect(kc.updateToken).not.toHaveBeenCalled()
   })
 })
 

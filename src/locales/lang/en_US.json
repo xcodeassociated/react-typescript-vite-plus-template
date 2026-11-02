@@ -87,7 +87,9 @@
   "sse": {
     "connected": "Live updates connected",
     "connecting": "Connecting to live updates...",
+    "reconnecting": "Reconnecting to live updates...",
     "disconnected": "Live updates disconnected",
+    "logged_out": "Live updates stopped — logged out",
     "last_update": "Last update",
     "reconnect": "Reconnect"
   }

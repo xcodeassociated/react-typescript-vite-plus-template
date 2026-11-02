@@ -87,7 +87,9 @@
   "sse": {
     "connected": "Aktualizacje na żywo połączone",
     "connecting": "Łączenie z aktualizacjami na żywo...",
+    "reconnecting": "Ponowne łączenie z aktualizacjami na żywo...",
     "disconnected": "Aktualizacje na żywo rozłączone",
+    "logged_out": "Aktualizacje na żywo zatrzymane — sesja wylogowana",
     "last_update": "Ostatnia aktualizacja",
     "reconnect": "Połącz ponownie"
   }

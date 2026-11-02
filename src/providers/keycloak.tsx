@@ -21,6 +21,10 @@ export interface KeycloakContextValue {
   /** Proactively refresh, then return a bearer token for API requests
    * (undefined when unauthenticated). */
   getAccessToken: () => Promise<string | undefined>
+  /** Expire the local session without redirecting (server-side revocation,
+   * e.g. the SSE `logged_out` event): clearToken fires onAuthLogout, which
+   * flips the auth state so protected routes lock immediately. */
+  expireSession: () => void
 }
 
 const KeycloakContext = createContext<KeycloakContextValue | undefined>(
@@ -148,10 +152,34 @@ export function KeycloakProvider({ children }: KeycloakProviderProps) {
       }
     }, TOKEN_REFRESH_BACKSTOP_MS)
 
+    // Wake revalidation: the backstop's updateToken(60) no-ops while the
+    // token is still fresh, so a session killed remotely could stay
+    // undetected until the next refresh window. updateToken(-1) always hits
+    // the token endpoint — a dead session answers 400, keycloak-js clears
+    // the token and fires onAuthLogout, so routes lock on tab wake-up.
+    const revalidate = () => {
+      if (isUserAuthenticated()) {
+        void keycloak.updateToken(-1).catch(() => {})
+      }
+    }
+    const onVisibility = () => {
+      if (document.visibilityState === "visible") {
+        revalidate()
+      }
+    }
+    window.addEventListener("online", revalidate)
+    // Page Lifecycle "resume": laptop waking from sleep fires this even when
+    // no online/visibilitychange accompanies it — the last detection net.
+    window.addEventListener("resume", revalidate)
+    document.addEventListener("visibilitychange", onVisibility)
+
     return () => {
       cancelled = true
       clearTimeout(watchdog)
       clearInterval(backstop)
+      window.removeEventListener("online", revalidate)
+      window.removeEventListener("resume", revalidate)
+      document.removeEventListener("visibilitychange", onVisibility)
       keycloak.onReady = undefined
       keycloak.onAuthSuccess = undefined
       keycloak.onAuthError = undefined
@@ -174,6 +202,18 @@ export function KeycloakProvider({ children }: KeycloakProviderProps) {
       .catch((error: unknown) => console.error("Keycloak logout failed", error))
   }, [])
 
+  // Server-side revocation (e.g. the SSE `logged_out` event): drop the local
+  // session without redirecting. clearToken fires onAuthLogout (handled by
+  // the sync above); the settle-sync covers the no-token no-op case.
+  const expireSession = useCallback(() => {
+    void keycloak
+      .clearToken()
+      .catch((error: unknown) =>
+        console.error("Keycloak session expire failed", error)
+      )
+      .finally(() => setAuthenticated(isUserAuthenticated()))
+  }, [])
+
   const value: KeycloakContextValue = {
     initialized,
     authenticated,
@@ -181,6 +221,7 @@ export function KeycloakProvider({ children }: KeycloakProviderProps) {
     logout,
     updateToken: refresh,
     getAccessToken,
+    expireSession,
   }
 
   return (

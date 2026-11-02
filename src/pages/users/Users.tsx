@@ -19,12 +19,12 @@ import {
 import { DataTable } from "@/pages/users/components/data-table"
 import { SseStatusBar } from "@/pages/users/components/sse-status-bar"
 import { LoadingScreenMemo } from "@/components/loading-screen"
+import { useNotifications } from "@/providers/notifications"
 import { UserDialog } from "./components/user-dialog"
 import { usersApi } from "./api/usersApi"
 import type { User, UserInput } from "./api/usersApi.types"
 import { useUserColumns } from "./hooks/useColumns"
 import { useRolesGraphql } from "./hooks/useRolesGraphql"
-import { useSimpleSSE } from "./hooks/useSseUsers"
 
 const DEFAULT_PAGE_SIZE = 5
 
@@ -131,14 +131,10 @@ export function Users() {
 
   const columns = useUserColumns({ onEdit: handleEdit, onDelete: handleDelete })
 
-  const { connectionStatus, lastMessage, reconnect } = useSimpleSSE(
-    `${import.meta.env.VITE_APP_BACKEND_URL}/update/user`,
-    {
-      onUpdate: () => {
-        void users.refetch()
-      },
-    }
-  )
+  // Live-updates state comes from the app-level stream (NotificationsProvider):
+  // revocation (`logged_out`) locks every route via expireSession, and update
+  // broadcasts invalidate the users queries even when this page is not open.
+  const { connectionStatus, lastMessage, reconnect } = useNotifications()
 
   const handleSubmit = useCallback(
     (data: UserInput) => {

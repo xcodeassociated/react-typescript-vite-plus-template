@@ -16,6 +16,11 @@ function toDto(data: UserInput): UserInputDto {
 export const usersApi = createApi({
   tagTypes: ["users", "usersCount"],
   reducerPath: "usersApi",
+  // with setupListeners() in store.ts: refetch active queries on window
+  // focus/visibility-return and on online — freshness the SSE stream can't
+  // cover (events missed while the tab was hidden or offline).
+  refetchOnFocus: true,
+  refetchOnReconnect: true,
   baseQuery: fetchBaseQuery({
     baseUrl: `${import.meta.env.VITE_APP_BACKEND_URL}/coroutine`,
     // Proactively refresh so requests after idle never send an expired token
@@ -31,7 +36,9 @@ export const usersApi = createApi({
   endpoints: (builder) => ({
     getAllUsers: builder.query<User[], Page>({
       query: ({ page, pageSize, sort, direction }) =>
-        `/users?page=${page}&size=${pageSize}&sort=${sort}&direction=${direction}`,
+        `/users?page=${page}&size=${pageSize}&sort=${encodeURIComponent(
+          sort
+        )}&direction=${direction}`,
       providesTags: ["users"],
     }),
     getUsersSize: builder.query<number, void>({
