@@ -52,7 +52,29 @@
     "update": "Aktualizuj",
     "delete": "Usuń",
     "add": "Dodaj Użytkownika",
-    "role_not_found": "Rola nie znaleziona"
+    "role_not_found": "Rola nie znaleziona",
+    "error_retry": "Dane mogły być nieaktualne.",
+    "error_retryed": "Ponów"
+  },
+  "permissions": {
+    "open": "Uprawnienia",
+    "title": "Uprawnienia",
+    "subtitle": "Twórz, aktualizuj i usuwaj uprawnienia bez opuszczania strony.",
+    "add": "Dodaj Uprawnienie",
+    "name": "Nazwa",
+    "name_placeholder": "Wpisz Nazwę...",
+    "name_validation": "Nazwa musi mieć co najmniej 2 znaki",
+    "description": "Opis",
+    "description_placeholder": "Wpisz Opis...",
+    "submit": "Wyślij",
+    "cancel": "Anuluj",
+    "update": "Aktualizuj",
+    "delete": "Usuń",
+    "created": "Uprawnienie utworzone",
+    "updated": "Uprawnienie zaktualizowane",
+    "deleted": "Uprawnienie usunięte",
+    "empty": "Nie znaleziono uprawnień",
+    "page_of": "Strona {{page}} z {{pages}}"
   },
   "app": {
     "name": "Shadcn"

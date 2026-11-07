@@ -2,6 +2,7 @@ import { useCallback, useMemo, useState } from "react"
 import { useSearchParams } from "react-router-dom"
 import { useTranslation } from "react-i18next"
 import { toast } from "sonner"
+import { RotateCwIcon, TriangleAlertIcon } from "lucide-react"
 import type {
   OnChangeFn,
   PaginationState,
@@ -19,14 +20,18 @@ import {
 import { DataTable } from "@/pages/users/components/data-table"
 import { SseStatusBar } from "@/pages/users/components/sse-status-bar"
 import { LoadingScreenMemo } from "@/components/loading-screen"
+import { usePermissionsListGraphql } from "@/components/permissions/usePermissionsGraphql"
 import { useNotifications } from "@/providers/notifications"
 import { UserDialog } from "./components/user-dialog"
 import { usersApi } from "./api/usersApi"
-import type { User, UserInput } from "./api/usersApi.types"
+import type { Role, User, UserInput } from "./api/usersApi.types"
 import { useUserColumns } from "./hooks/useColumns"
-import { useRolesGraphql } from "./hooks/useRolesGraphql"
 
 const DEFAULT_PAGE_SIZE = 5
+
+// the combobox needs the full role list in one flat fetch; it shares the
+// widget's PermissionsList document — same cache, same refetches
+const ROLES_FETCH_SIZE = 50
 
 const EMPTY_USERS: User[] = []
 
@@ -106,7 +111,19 @@ export function Users() {
   const [updateUser] = usersApi.useUpdateUserMutation()
   const [deleteUser] = usersApi.useDeleteUserMutation()
 
-  const { roles } = useRolesGraphql()
+  const { permissions: rolePermissions } = usePermissionsListGraphql(
+    true,
+    0,
+    ROLES_FETCH_SIZE
+  )
+  const roles = useMemo<Role[]>(
+    () =>
+      rolePermissions.map((permission) => ({
+        _id: permission.id,
+        name: permission.name,
+      })),
+    [rolePermissions]
+  )
 
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editing, setEditing] = useState<UserInput | undefined>(undefined)
@@ -146,8 +163,16 @@ export function Users() {
   )
 
   const emptyUsers = EMPTY_USERS
+  // On a failed background refetch RTK Query moves the rows to previousData;
+  // treat that as still-displayable — never throw away usable data. A failed
+  // REFRESH keeps the table with a short stale notice; a failure with nothing
+  // to show gets the standard error card + retry. Copy is deliberately
+  // generic and production-appropriate — no operational advice for users.
+  const usersData =
+    users.data ?? (users as { previousData?: User[] }).previousData
+  const isStale = users.isError && usersData !== undefined
 
-  if (users.isError) {
+  if (users.isError && usersData === undefined) {
     return (
       <div className="flex w-full min-w-0 flex-col gap-4">
         <SseStatusBar
@@ -155,9 +180,20 @@ export function Users() {
           lastMessage={lastMessage}
           onReconnect={reconnect}
         />
-        <div className="text-center text-lg font-medium">
-          {t("error.not_found")}
-        </div>
+        <Card>
+          <CardContent>
+            <div className="flex flex-col items-center gap-4 py-10 text-center">
+              <TriangleAlertIcon size={32} className="text-muted-foreground" />
+              <div className="text-lg font-medium">
+                {t("error.something_wrong")}
+              </div>
+              <Button variant="outline" onClick={() => void users.refetch()}>
+                <RotateCwIcon size={14} />
+                {t("error.try_again")}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     )
   }
@@ -173,6 +209,22 @@ export function Users() {
         lastMessage={lastMessage}
         onReconnect={reconnect}
       />
+      {isStale ? (
+        <div
+          role="status"
+          className="flex items-center justify-between gap-4 rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-2 text-sm"
+        >
+          <span className="min-w-0 truncate">{t("users.error_retry")}</span>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => void users.refetch()}
+          >
+            <RotateCwIcon size={14} />
+            {t("users.error_retryed")}
+          </Button>
+        </div>
+      ) : null}
       <Card>
         <CardHeader>
           <CardTitle>{t("users.t1")}</CardTitle>
@@ -184,7 +236,7 @@ export function Users() {
               open={dialogOpen}
               onOpenChange={setDialogOpen}
               data={editing}
-              roles={roles ?? []}
+              roles={roles}
               onSubmit={handleSubmit}
             />
             <Button
@@ -199,7 +251,7 @@ export function Users() {
             </Button>
             <DataTable
               columns={columns}
-              data={users.data ?? emptyUsers}
+              data={usersData ?? emptyUsers}
               total={usersCount.data ?? 0}
               pagination={pagination}
               onPaginationChange={handlePaginationChange}
