@@ -25,7 +25,7 @@ const NotificationsContext = createContext<
  * ProtectedRoute lock) is instant on EVERY route — not just the users page —
  * and `update` broadcasts invalidate the users queries whether or not the
  * page is mounted. The stream is gated on authentication: it connects on
- * login, closes on logout, and re-mints a fresh ticket per (re)connect.
+ * login, closes on logout, and resolves a fresh token per (re)connect.
  */
 export function NotificationsProvider({ children }: { children: ReactNode }) {
   const { authenticated, expireSession } = useKeycloak()
@@ -37,6 +37,11 @@ export function NotificationsProvider({ children }: { children: ReactNode }) {
       enabled: authenticated,
       onLoggedOut: expireSession,
       onUpdate: () => {
+        void dispatch(usersApi.util.invalidateTags(["users", "usersCount"]))
+      },
+      // SSE has no replay: events missed while the stream was down are gone.
+      // Treat every (re)connect as "catch me up" and revalidate user data.
+      onConnect: () => {
         void dispatch(usersApi.util.invalidateTags(["users", "usersCount"]))
       },
     }

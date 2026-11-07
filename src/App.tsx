@@ -12,6 +12,7 @@ import { LoadingScreenMemo } from "@/components/loading-screen"
 import { ErrorBoundary } from "@/components/error-boundary"
 import { CookieConsent } from "@/components/cookie-consent"
 import { ModeToggle } from "@/components/mode-toggle"
+import { PermissionsWidget } from "@/components/permissions/permissions-widget"
 import { useKeycloak } from "@/providers/keycloak"
 import { useTheme } from "@/providers/theme"
 import {
@@ -106,6 +107,7 @@ function App() {
             </InputGroup>
           </form>
           <ModeToggle />
+          {authenticated ? <PermissionsWidget /> : null}
           <UserDropdownMenu />
         </header>
         <main className="flex flex-1 flex-col gap-6 bg-muted/40 p-4 md:gap-10 md:p-10">

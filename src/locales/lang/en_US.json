@@ -52,7 +52,29 @@
     "update": "Update",
     "delete": "Delete",
     "add": "Add User",
-    "role_not_found": "Role not found"
+    "role_not_found": "Role not found",
+    "error_retry": "The data may be out of date.",
+    "error_retryed": "Retry"
+  },
+  "permissions": {
+    "open": "Permissions",
+    "title": "Permissions",
+    "subtitle": "Create, update and delete permissions without leaving the page.",
+    "add": "Add Permission",
+    "name": "Name",
+    "name_placeholder": "Enter Name...",
+    "name_validation": "Name must be at least 2 characters",
+    "description": "Description",
+    "description_placeholder": "Enter Description...",
+    "submit": "Submit",
+    "cancel": "Cancel",
+    "update": "Update",
+    "delete": "Delete",
+    "created": "Permission created",
+    "updated": "Permission updated",
+    "deleted": "Permission deleted",
+    "empty": "No permissions found",
+    "page_of": "Page {{page}} of {{pages}}"
   },
   "app": {
     "name": "Shadcn"
